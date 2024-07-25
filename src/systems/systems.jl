@@ -63,9 +63,15 @@ function __structural_simplify(sys::JumpSystem, args...; kwargs...)
     return sys
 end
 
-function __structural_simplify(sys::AbstractSystem, io = nothing; simplify = false,
+function __structural_simplify(sys::AbstractSystem, io = nothing; simplify = false, substitute_eqs = false, old_eq = nothing, new_eq = nothing,
         kwargs...)
     sys = expand_connections(sys)
+    
+    if substitute_eqs
+        @warn "Substituting $old_eq with $new_eq"
+        old_eq_idx = findall(e -> e == old_eq, full_equations(sys))
+        @set! sys.eqs[first(old_eq_idx)] = new_eq
+    end
     state = TearingState(sys)
 
     @unpack structure, fullvars = state
